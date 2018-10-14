@@ -66,9 +66,7 @@ class FSRBot:
             if season:
                 url += f'&season={season.lower()}'
             if division:
-                if division.lower() in self.config['division_map']:
-                    division = self.config['division_map'].get(division.lower(), division)
-
+                division = self.config['division_map'].get(division.lower(), division.lower())
                 url += f'&division={division.lower()}'
 
             r = self.session.get(url)
@@ -110,8 +108,7 @@ class FSRBot:
     @commands.command()
     async def standings(self, ctx, division, driver: str = None):
         """Show standings for the current season of the specified division."""
-        if division.lower() in self.config['division_map']:
-            division = self.config['division_map'].get(division.lower(), division)
+        division = self.config['division_map'].get(division.lower(), division.lower())
 
         if division.lower() not in self.config['division_season']:
             r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
