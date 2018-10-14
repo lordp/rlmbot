@@ -1,51 +1,13 @@
 {
+    "division_map": {
+        "wc": "world championship",
+        "wt": "world trophy",
+        "ws": "world series",
+        "cs": "classic series",
+        "win": "winter series"
+    },
     "division_season": {
-        "ace": "64",
-        "pro": "65",
-        "world championship": "63"
     },
     "season_info": {
-        "64": {
-            "id": 64,
-            "division": 2,
-            "name": "2018",
-            "description": "",
-            "start_date": "2018-03-25",
-            "end_date": "2018-11-30",
-            "finalized": false,
-            "point_system": 28,
-            "classification_type": "percent",
-            "percent_classified": 90,
-            "laps_classified": 0,
-            "teams_disabled": false
-        },
-        "65": {
-            "id": 65,
-            "division": 3,
-            "name": "2018",
-            "description": "",
-            "start_date": "2018-03-25",
-            "end_date": "2018-11-30",
-            "finalized": false,
-            "point_system": 27,
-            "classification_type": "percent",
-            "percent_classified": 90,
-            "laps_classified": 0,
-            "teams_disabled": false
-        },
-        "63": {
-            "id": 63,
-            "division": 1,
-            "name": "2018",
-            "description": "",
-            "start_date": "2018-03-25",
-            "end_date": "2018-11-30",
-            "finalized": false,
-            "point_system": 1,
-            "classification_type": "percent",
-            "percent_classified": 90,
-            "laps_classified": 0,
-            "teams_disabled": false
-        }
     }
 }

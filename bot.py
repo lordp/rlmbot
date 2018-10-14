@@ -7,14 +7,6 @@ from datetime import datetime
 from terminaltables import AsciiTable
 from utils import *
 
-division_map = {
-    'wc': 'world championship',
-    'wt': 'world trophy',
-    'ws': 'world series',
-    'cs': 'classic series',
-    'win': 'winter series'
-}
-
 
 class FSRBot:
     def __init__(self, bot_obj):
@@ -35,7 +27,8 @@ class FSRBot:
         except FileNotFoundError:
             self.config = {
                 'division_season': {},
-                'season_info': {}
+                'season_info': {},
+                'division_map': {}
             }
 
     def save_config(self):
@@ -73,8 +66,8 @@ class FSRBot:
             if season:
                 url += f'&season={season.lower()}'
             if division:
-                if division.lower() in division_map:
-                    division = division_map.get(division.lower(), division)
+                if division.lower() in self.config['division_map']:
+                    division = self.config['division_map'].get(division.lower(), division)
 
                 url += f'&division={division.lower()}'
 
@@ -117,8 +110,8 @@ class FSRBot:
     @commands.command()
     async def standings(self, ctx, division, driver: str = None):
         """Show standings for the current season of the specified division."""
-        if division.lower() in division_map:
-            division = division_map.get(division.lower(), division)
+        if division.lower() in self.config['division_map']:
+            division = self.config['division_map'].get(division.lower(), division)
 
         if division.lower() not in self.config['division_season']:
             r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
