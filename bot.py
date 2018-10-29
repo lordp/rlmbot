@@ -124,46 +124,57 @@ class FSRBot:
             self.save_config()
 
         season_id = self.config['division_season'][division.lower()]
+        teams_disabled = self.config['season_info'][season_id]['teams_disabled']
 
         url = f'{self.base_url}/api/standings/{season_id}'
         if driver:
             url += f'?driver={driver.lower()}'
 
         r = self.session.get(url)
-        standings = json.loads(r.content)
+        try:
+            standings = json.loads(r.content)
 
-        data = [
-            ['Pos', 'Driver', 'Team', 'Points'],
-        ]
+            data = [
+                ['Pos', 'Driver', 'Team', 'Points'],
+            ]
 
-        if self.config['season_info'][season_id]['teams_disabled']:
-            data[0].pop(2)
+            if teams_disabled:
+                data[0].pop(2)
 
-        for pos in standings[0:5]:
-            add_row(data, pos, self.config['season_info'][season_id]['teams_disabled'])
+            for pos in standings[0:5]:
+                add_row(data, pos, teams_disabled)
 
-        found = False
-        if driver:
-            try:
-                found = [d for d in data if driver.lower() in d[1].lower()][0]
-            except IndexError:
-                pass
-
-            if not found:
+            found = False
+            if driver:
                 try:
-                    info = [d for d in standings if driver.lower() in d['name'].lower()][0]
-                    data.append(['...'])
-                    add_row(data, info, self.config['season_info'][season_id]['teams_disabled'])
-                except IndexError:
+                    found = next(iter([d for d in data if driver.lower() in d[1].lower()]))
+                except StopIteration:
                     pass
 
-        table_instance = AsciiTable(data)
-        table_instance.inner_column_border = False
-        table_instance.outer_border = False
+                if not found:
+                    try:
+                        info = next(iter([{'index': i, 'details': d} for i, d in enumerate(standings) if
+                                          driver.lower() in d['name'].lower()]))
+                        prev_pos = standings[info['index'] - 1]
+                        next_pos = standings[info['index'] + 1]
+                        if prev_pos['position'] > 6:
+                            data.append(['...'])
+                        if prev_pos['position'] > 5:
+                            add_row(data, prev_pos, teams_disabled)
+                        add_row(data, info['details'], teams_disabled)
+                        add_row(data, next_pos, teams_disabled)
+                    except StopIteration:
+                        pass
 
-        season_info = self.config['season_info'][season_id]
-        season = f"Name: {season_info['name']} ({season_info['start_date']} to {season_info['end_date']})"
-        msg = table_instance.table
+            table_instance = AsciiTable(data)
+            table_instance.inner_column_border = False
+            table_instance.outer_border = False
+
+            season_info = self.config['season_info'][season_id]
+            season = f"Name: {season_info['name']} ({season_info['start_date']} to {season_info['end_date']})"
+            msg = table_instance.table
+        except json.decoder.JSONDecodeError:
+            season = 'Error'
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
