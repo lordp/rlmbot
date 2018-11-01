@@ -6,7 +6,10 @@ from collections import Counter
 from datetime import datetime
 from terminaltables import AsciiTable
 from utils import *
-
+from dateutil.parser import *
+from dateutil.utils import today
+from dateutil.tz import *
+from dateutil.relativedelta import *
 
 class FSRBot:
     def __init__(self, bot_obj):
@@ -167,6 +170,42 @@ class FSRBot:
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
+    @commands.command()
+    async def schedule(self, ctx, division):
+        """Show the schedule for the current season of the specified division."""
+        division = self.config['division_map'].get(division.lower(), division.lower())
+        if not self.get_current_season(division):
+            await ctx.send('No seasons found for division')
+
+        season_id = self.config['division_season'][division.lower()]
+
+        url = f'{self.base_url}/api/races?season={season_id}'
+        r = self.session.get(url)
+        try:
+            schedule = json.loads(r.content)
+
+            data = [
+                ['Round', 'Name', 'Start Time'],
+            ]
+
+            this_day = today(tzinfo=tzutc())
+            for event in schedule:
+                start_time = parse(event['start_time']).replace(hour=0, minute=0, second=0, microsecond=0)
+                delta = self.format_delta(relativedelta(start_time, this_day))
+                data.append([event['round_number'], event['name'], start_time.strftime('%a, %d %b %Y'), delta])
+
+            table_instance = AsciiTable(data)
+            table_instance.inner_column_border = False
+            table_instance.outer_border = False
+
+            season_info = self.config['season_info'][season_id]
+            season = f"Name: {season_info['name']} ({season_info['start_date']} to {season_info['end_date']})"
+            msg = table_instance.table
+        except json.decoder.JSONDecodeError:
+            season = 'Error'
+
+        await ctx.send(f"```{season}\n\n{msg}```")
+
     def get_current_season(self, division):
         if division.lower() not in self.config['division_season']:
             r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
@@ -181,6 +220,21 @@ class FSRBot:
             self.save_config()
 
         return True
+
+    @staticmethod
+    def format_delta(delta):
+        string_delta = ''
+        if delta.months != 0:
+            string_delta = f'{abs(delta.months)} months'
+            if delta.days != 0:
+                string_delta = f'{string_delta}, {abs(delta.days)} days'
+        elif delta.days != 0:
+            string_delta = f'{abs(delta.days)} days'
+
+        if delta.months < 0 or delta.days < 0:
+            string_delta = f'{string_delta} ago'
+
+        return string_delta
 
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"),
