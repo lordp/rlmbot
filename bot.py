@@ -207,6 +207,39 @@ class FSRBot:
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
+    @commands.command()
+    async def fantasy(self, ctx, league):
+        """Show the F1 fantasy table."""
+        with open(f'{league}.json') as infile:
+            league = json.load(infile)
+
+        data = [['Name', 'Total', 'Race', 'Drivers', 'Team']]
+        for entry in league:
+            try:
+                drivers = ', '.join(entry['picks']['drivers'])
+                team = entry['picks']['team']
+            except KeyError:
+                drivers = ''
+                team = ''
+
+            data.append([
+                entry['user'],
+                format_float(entry['score']),
+                format_float(entry['race_score']),
+                drivers,
+                team
+            ])
+
+        table_instance = AsciiTable(data)
+        table_instance.inner_column_border = False
+        table_instance.outer_border = False
+        table_instance.justify_columns[1] = 'center'
+        table_instance.justify_columns[2] = 'center'
+
+        content = "```{}```".format(table_instance.table)
+
+        await ctx.send(content)
+
     def get_current_season(self, division):
         if division.lower() not in self.config['division_season']:
             r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
