@@ -31,7 +31,8 @@ class FSRBot:
             self.config = {
                 'division_season': {},
                 'season_info': {},
-                'division_map': {}
+                'division_map': {},
+                'fantasy': {}
             }
 
     def save_config(self):
@@ -207,35 +208,46 @@ class FSRBot:
         await ctx.send(f"```{season}\n\n{msg}```")
 
     @commands.command()
-    async def fantasy(self, ctx, league):
+    async def fantasy(self, ctx, league: str = None):
         """Show the F1 fantasy table."""
-        with open(f'{league}.json') as infile:
-            league = json.load(infile)
-
-        data = [['Name', 'Total', 'Race', 'Drivers', 'Team']]
-        for entry in league:
+        if league is not None and league not in self.config['fantasy']:
+            league = None
+        elif league is None:
             try:
-                drivers = ', '.join(entry['picks']['drivers'])
-                team = entry['picks']['team']
-            except KeyError:
-                drivers = ''
-                team = ''
+                league = next(iter([l for l, info in self.config['fantasy'].items() if info['guild'] == ctx.guild.id]))
+            except StopIteration:
+                pass
 
-            data.append([
-                entry['user'],
-                format_float(entry['score']),
-                format_float(entry['race_score']),
-                drivers,
-                team
-            ])
+        if league:
+            with open(f'{league}.json') as infile:
+                league = json.load(infile)
 
-        table_instance = AsciiTable(data)
-        table_instance.inner_column_border = False
-        table_instance.outer_border = False
-        table_instance.justify_columns[1] = 'center'
-        table_instance.justify_columns[2] = 'center'
+            data = [['Name', 'Total', 'Race', 'Drivers', 'Team']]
+            for entry in league:
+                try:
+                    drivers = ', '.join(entry['picks']['drivers'])
+                    team = entry['picks']['team']
+                except KeyError:
+                    drivers = ''
+                    team = ''
 
-        content = "```{}```".format(table_instance.table)
+                data.append([
+                    entry['user'],
+                    format_float(entry['score']),
+                    format_float(entry['race_score']),
+                    drivers,
+                    team
+                ])
+
+            table_instance = AsciiTable(data)
+            table_instance.inner_column_border = False
+            table_instance.outer_border = False
+            table_instance.justify_columns[1] = 'center'
+            table_instance.justify_columns[2] = 'center'
+
+            content = "```{}```".format(table_instance.table)
+        else:
+            content = "League not found."
 
         await ctx.send(content)
 
