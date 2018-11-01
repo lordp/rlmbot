@@ -192,7 +192,7 @@ class FSRBot:
             this_day = today(tzinfo=tzutc())
             for event in schedule:
                 start_time = parse(event['start_time']).replace(hour=0, minute=0, second=0, microsecond=0)
-                delta = self.format_delta(relativedelta(start_time, this_day))
+                delta = format_delta(relativedelta(start_time, this_day))
                 data.append([event['round_number'], event['name'], start_time.strftime('%a, %d %b %Y'), delta])
 
             table_instance = AsciiTable(data)
@@ -221,22 +221,6 @@ class FSRBot:
             self.save_config()
 
         return True
-
-    @staticmethod
-    def format_delta(delta):
-        string_delta = ''
-        if delta.months != 0:
-            string_delta = f'{abs(delta.months)} months'
-            if delta.days != 0:
-                string_delta = f'{string_delta}, {abs(delta.days)} days'
-        elif delta.days != 0:
-            string_delta = f'{abs(delta.days)} days'
-
-        if delta.months < 0 or delta.days < 0:
-            string_delta = f'{string_delta} ago'
-
-        return string_delta
-
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"),
                    description='FSR Bot')

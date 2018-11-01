@@ -42,3 +42,18 @@ def add_row(data, pos, teams_disabled):
         ])
 
     return data
+
+
+def format_delta(delta):
+    string_delta = ''
+    if delta.months != 0:
+        string_delta = f'{abs(delta.months)} months'
+        if delta.days != 0:
+            string_delta = f'{string_delta}, {abs(delta.days)} days'
+    elif delta.days != 0:
+        string_delta = f'{abs(delta.days)} days'
+
+    if delta.months < 0 or delta.days < 0:
+        string_delta = f'{string_delta} ago'
+
+    return string_delta
