@@ -109,19 +109,8 @@ class FSRBot:
     async def standings(self, ctx, division, driver: str = None):
         """Show standings for the current season of the specified division."""
         division = self.config['division_map'].get(division.lower(), division.lower())
-
-        if division.lower() not in self.config['division_season']:
-            r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
-            info = json.loads(r.content)
-            if 'season' not in info:
-                await ctx.send('No seasons found for division')
-                return
-
-            self.config['division_season'][division.lower()] = str(info['season']['id'])
-            if str(info['season']['id']) not in self.config['season_info']:
-                self.config['season_info'][str(info['season']['id'])] = info['season']
-
-            self.save_config()
+        if not self.get_current_season(division):
+            await ctx.send('No seasons found for division')
 
         season_id = self.config['division_season'][division.lower()]
         teams_disabled = self.config['season_info'][season_id]['teams_disabled']
@@ -178,9 +167,20 @@ class FSRBot:
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
-    @commands.command(hidden=True)
-    async def info(self, ctx):
-        print(ctx.guild.created_at)
+    def get_current_season(self, division):
+        if division.lower() not in self.config['division_season']:
+            r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
+            info = json.loads(r.content)
+            if 'season' not in info:
+                return False
+
+            self.config['division_season'][division.lower()] = str(info['season']['id'])
+            if str(info['season']['id']) not in self.config['season_info']:
+                self.config['season_info'][str(info['season']['id'])] = info['season']
+
+            self.save_config()
+
+        return True
 
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"),
