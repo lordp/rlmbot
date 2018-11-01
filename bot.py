@@ -1,7 +1,6 @@
 from discord.ext import commands
 import requests
 from cachecontrol import CacheControl
-import json
 from collections import Counter
 from datetime import datetime
 from terminaltables import AsciiTable
@@ -113,7 +112,7 @@ class FSRBot:
     async def standings(self, ctx, division, driver: str = None):
         """Show standings for the current season of the specified division."""
         division = self.config['division_map'].get(division.lower(), division.lower())
-        if not self.get_current_season(division):
+        if not get_current_season(division, self):
             await ctx.send('No seasons found for division')
 
         season_id = self.config['division_season'][division.lower()]
@@ -175,7 +174,7 @@ class FSRBot:
     async def schedule(self, ctx, division):
         """Show the schedule for the current season of the specified division."""
         division = self.config['division_map'].get(division.lower(), division.lower())
-        if not self.get_current_season(division):
+        if not get_current_season(division, self):
             await ctx.send('No seasons found for division')
 
         season_id = self.config['division_season'][division.lower()]
@@ -240,20 +239,6 @@ class FSRBot:
 
         await ctx.send(content)
 
-    def get_current_season(self, division):
-        if division.lower() not in self.config['division_season']:
-            r = self.session.get(f'{self.base_url}/api/info/{division.lower()}')
-            info = json.loads(r.content)
-            if 'season' not in info:
-                return False
-
-            self.config['division_season'][division.lower()] = str(info['season']['id'])
-            if str(info['season']['id']) not in self.config['season_info']:
-                self.config['season_info'][str(info['season']['id'])] = info['season']
-
-            self.save_config()
-
-        return True
 
 bot = commands.Bot(command_prefix=commands.when_mentioned_or("?"),
                    description='FSR Bot')
