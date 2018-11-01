@@ -11,6 +11,7 @@ from dateutil.utils import today
 from dateutil.tz import *
 from dateutil.relativedelta import *
 
+
 class FSRBot:
     def __init__(self, bot_obj):
         self.bot = bot_obj
