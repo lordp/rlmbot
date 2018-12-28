@@ -168,6 +168,7 @@ class FSRBot:
             msg = table_instance.table
         except json.decoder.JSONDecodeError:
             season = 'Error'
+            msg = "There was an error retrieving the standings"
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
@@ -204,6 +205,7 @@ class FSRBot:
             msg = table_instance.table
         except json.decoder.JSONDecodeError:
             season = 'Error'
+            msg = "There was an error retrieving the schedule"
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
