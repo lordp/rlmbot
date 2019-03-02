@@ -251,8 +251,8 @@ class FSRBot:
                 iter(
                     [
                         info['tag']
-                        for l, info in self.config["fantasy"].items()
-                        if l == str(ctx.guild.id)
+                        for league_id, info in self.config["fantasy"].items()
+                        if league_id == str(ctx.guild.id)
                     ]
                 )
             )
