@@ -1,69 +1,50 @@
 {
-  "urls": {
-    "create_session_url": "https://api.formula1.com/v1/account/Subscriber/CreateSession",
-    "league_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/leaderboards/league?league_id={}",
-    "user_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/users/{}"
-  },
-  "division_map": {
-    "wc": "world championship",
-    "wt": "world trophy",
-    "ws": "world series",
-    "cs": "classic series",
-    "win": "winter series"
-  },
-  "division_season": {
-  },
-  "season_info": {
-  },
-  "fantasy": {
-    "drivers_teams": {
-      "1": "FER",
-      "2": "WIL",
-      "3": "MCL",
-      "4": "MER",
-      "5": "RBR",
-      "6": "REN",
-      "7": "ARR",
-      "8": "TOR",
-      "9": "HAA",
-      "10": "RP",
-      "11": "HAM",
-      "12": "BOT",
-      "13": "VET",
-      "14": "LEC",
-      "15": "VER",
-      "16": "GAS",
-      "17": "RIC",
-      "18": "HUL",
-      "19": "GRO",
-      "20": "MAG",
-      "21": "SAI",
-      "22": "NOR",
-      "23": "PER",
-      "24": "STR",
-      "25": "RAI",
-      "26": "GIO",
-      "27": "KVY",
-      "28": "ALB",
-      "29": "RUS",
-      "30": "KUB"
+    "urls": {
+        "create_session_url": "https://api.formula1.com/v1/account/Subscriber/CreateSession",
+        "league_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/leaderboards/league?league_id={}",
+        "user_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/users/{}"
     },
-    "290654346495000586": {
-      "tag": "vwdcpc",
-      "f1_id": "26545",
-      "players": {
-        "91979": "c0mpliant",
-        "74426": "Spectre",
-        "69776": "CMR_18",
-        "91473": "Pepe",
-        "88085": "lordp",
-        "153639": "Krusen",
-        "27009": "Majestic",
-        "94819": "Roemer",
-        "14906": "Hunteroni",
-        "104993": "AmoInfernal",
-        "91379": "Alistair"
-      }
+    "division_map": {
+        "wc": "world championship",
+        "wt": "world trophy",
+        "ws": "world series",
+        "cs": "classic series",
+        "win": "winter series"
+    },
+    "division_season": {},
+    "season_info": {},
+    "fantasy": {
+        "drivers_teams": {
+            "1": "FER",
+            "2": "WIL",
+            "3": "MCL",
+            "4": "MER",
+            "5": "RBR",
+            "6": "REN",
+            "7": "ARR",
+            "8": "TOR",
+            "9": "HAA",
+            "10": "RP",
+            "11": "HAM",
+            "12": "BOT",
+            "13": "VET",
+            "14": "LEC",
+            "15": "VER",
+            "16": "GAS",
+            "17": "RIC",
+            "18": "HUL",
+            "19": "GRO",
+            "20": "MAG",
+            "21": "SAI",
+            "22": "NOR",
+            "23": "PER",
+            "24": "STR",
+            "25": "RAI",
+            "26": "GIO",
+            "27": "KVY",
+            "28": "ALB",
+            "29": "RUS",
+            "30": "KUB"
+        }
     }
-  }
 }
