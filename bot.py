@@ -9,12 +9,14 @@ from dateutil.parser import *
 from dateutil.utils import today
 from dateutil.tz import *
 from dateutil.relativedelta import *
+import json
 
 
 class FSRBot:
     def __init__(self, bot_obj):
         self.bot = bot_obj
         self.config = {}
+        self.credentials = {}
 
         self.load_config()
 
@@ -27,6 +29,8 @@ class FSRBot:
         try:
             with open("config.json") as config:
                 self.config = json.load(config)
+            with open("credentials.json") as credentials:
+                self.credentials = json.load(credentials)
         except FileNotFoundError:
             self.config = {
                 "division_season": {},
