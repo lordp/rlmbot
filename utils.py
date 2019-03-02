@@ -1,5 +1,8 @@
 from inflect import engine
 import json
+from urllib import parse
+from base64 import b64encode
+import requests
 
 p = engine()
 
@@ -72,5 +75,72 @@ def get_current_season(division, bot):
             bot.config["season_info"][str(info["season"]["id"])] = info["season"]
 
         bot.save_config()
+
+    return True
+
+
+def generate_f1_cookie(config, credentials):
+    headers = {
+        'apiKey': credentials['fantasy']['apikey'],
+        'cd-systemid': credentials['fantasy']['cd-systemid'],
+        'Content-Type': 'application/json',
+        'cd-language': 'en-US'
+    }
+
+    payload = json.dumps({
+        'Login': credentials['fantasy']['username'],
+        'Password': credentials['fantasy']['password']
+    })
+
+    response = requests.post(config['urls']['create_session_url'], data=payload, headers=headers)
+    if response.status_code not in [200, 304]:
+        return False
+
+    body = json.loads(response.content.decode('utf-8'))
+
+    info = {"data": {"subscriptionStatus": "inactive", "subscriptionToken": body['data']['subscriptionToken']},
+            "profile": {"SubscriberId": 34767804, "country": "NZL", "firstName": "Darryl"}}
+
+    cookie = parse.quote(json.dumps(info))
+    return b64encode("account-info={}".format(cookie).encode('utf8')).decode('utf8')
+
+
+def update_fantasy_details(league, config, f1_cookie):
+    headers = {
+        'X-F1-COOKIE-DATA': f1_cookie
+    }
+
+    r = requests.get(config['urls']['league_url'].format(league['f1_id']), headers=headers)
+    if r.status_code in [200, 304]:
+        content = json.loads(r.content.decode('utf-8'))
+        entrants = content['leaderboard']['leaderboard_entrants']
+    else:
+        return False
+
+    for entrant in entrants:
+        r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
+        if r.status_code in [200, 304]:
+            content = json.loads(r.content.decode('utf-8'))
+            entrant['picks'] = {
+                'drivers': [],
+                'team': None,
+                'score': content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
+            }
+
+            for entry in content['user']['this_week_player_ids']['slot_1']:
+                if entry <= 10:
+                    entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
+                else:
+                    entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
+
+            if str(entrant['user_id']) not in league['players']:
+                entrant['user'] = f"Unknown ({entrant['user_id']})"
+            else:
+                entrant['user'] = league['players'][str(entrant['user_id'])]
+
+            print(f"{entrant['user']} collected")
+
+    with open(f"{league['tag']}.json", 'w') as outfile:
+        json.dump(entrants, outfile, indent=4)
 
     return True

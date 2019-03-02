@@ -294,6 +294,33 @@ class FSRBot:
 
         await ctx.send(content)
 
+    @commands.command(hidden=True)
+    async def fantasy_set(self, ctx, league_id, tag):
+        self.config['fantasy'][str(ctx.guild.id)] = {
+            "tag": tag,
+            "f1_id": league_id
+        }
+
+        self.save_config()
+
+        await ctx.send(f'{tag} set to this server.')
+
+    @commands.command()
+    async def fantasy_update(self, ctx):
+        """Update the fantasy details (points, position, etc)"""
+        if 'fantasy' not in self.credentials:
+            msg = "Credentials missing."
+        else:
+            f1_cookie = generate_f1_cookie(self.config, self.credentials)
+            if not f1_cookie:
+                msg = "Fantasy update failed."
+            else:
+                league = self.config['fantasy'][str(ctx.guild.id)]
+                update_fantasy_details(league, self.config, f1_cookie)
+                msg = "Fantasy details updated."
+
+        await ctx.send(msg)
+
 
 bot = commands.Bot(
     command_prefix=commands.when_mentioned_or("+"), description="FSR Bot"
