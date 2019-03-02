@@ -242,23 +242,22 @@ class FSRBot:
         await ctx.send(f"```{season}\n\n{msg}```")
 
     @commands.command()
-    async def fantasy(self, ctx, league: str = None):
+    async def fantasy(self, ctx):
         """Show the F1 fantasy table."""
-        if league is not None and league not in self.config["fantasy"]:
-            league = None
-        elif league is None:
-            try:
-                league = next(
-                    iter(
-                        [
-                            l
-                            for l, info in self.config["fantasy"].items()
-                            if info["guild"] == ctx.guild.id
-                        ]
-                    )
+        league = None
+
+        try:
+            league = next(
+                iter(
+                    [
+                        info['tag']
+                        for l, info in self.config["fantasy"].items()
+                        if l == str(ctx.guild.id)
+                    ]
                 )
-            except StopIteration:
-                pass
+            )
+        except StopIteration:
+            pass
 
         if league:
             with open(f"{league}.json") as infile:
@@ -277,7 +276,7 @@ class FSRBot:
                     [
                         entry["user"],
                         format_float(entry["score"]),
-                        format_float(entry["race_score"]),
+                        0,  # format_float(entry["race_score"]),
                         drivers,
                         team,
                     ]
@@ -291,7 +290,7 @@ class FSRBot:
 
             content = "```{}```".format(table_instance.table)
         else:
-            content = "League not found."
+            content = f"League {league} not found."
 
         await ctx.send(content)
 
