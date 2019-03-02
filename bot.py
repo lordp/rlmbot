@@ -315,6 +315,8 @@ class FSRBot:
             f1_cookie = generate_f1_cookie(self.config, self.credentials)
             if not f1_cookie:
                 msg = "Fantasy update failed."
+            elif str(ctx.guild.id) not in self.config['fantasy']:
+                msg = "This server was not found in fantasy settings."
             else:
                 league = self.config['fantasy'][str(ctx.guild.id)]
                 update_fantasy_details(league, self.config, f1_cookie)
