@@ -298,7 +298,8 @@ class FSRBot:
     async def fantasy_set(self, ctx, league_id, tag):
         self.config['fantasy'][str(ctx.guild.id)] = {
             "tag": tag,
-            "f1_id": league_id
+            "f1_id": league_id,
+            "players": {}
         }
 
         self.save_config()
