@@ -23,8 +23,6 @@ class FSRBot:
         req_sess = requests.session()
         self.session = CacheControl(req_sess)
 
-        self.base_url = "http://localhost:8000"
-
     def load_config(self):
         try:
             with open("config.json") as config:
@@ -46,7 +44,7 @@ class FSRBot:
     @commands.command()
     async def nextrace(self, ctx, division: str = None):
         """Show when the next race is, or when the next race for a particular division is."""
-        url = f"{self.base_url}/api/next-race"
+        url = f"{self.config['urls']['base_url']}/api/next-race"
         if division:
             url += f"?division={division}"
 
@@ -72,7 +70,7 @@ class FSRBot:
         if len(driver) < 3:
             msg = "Minimum search length is 3 characters"
         else:
-            url = f"{self.base_url}/api/stats?driver={driver.lower()}"
+            url = f"{self.config['urls']['base_url']}/api/stats?driver={driver.lower()}"
             if season:
                 url += f"&season={season.lower()}"
             if division:
@@ -137,7 +135,7 @@ class FSRBot:
         season_id = self.config["division_season"][division.lower()]
         teams_disabled = self.config["season_info"][season_id]["teams_disabled"]
 
-        url = f"{self.base_url}/api/standings/{season_id}"
+        url = f"{self.config['urls']['base_url']}/api/standings/{season_id}"
         if driver:
             url += f"?driver={driver.lower()}"
 
@@ -206,7 +204,7 @@ class FSRBot:
 
         season_id = self.config["division_season"][division.lower()]
 
-        url = f"{self.base_url}/api/races?season={season_id}"
+        url = f"{self.config['urls']['base_url']}/api/races?season={season_id}"
         r = self.session.get(url)
         try:
             schedule = json.loads(r.content)
