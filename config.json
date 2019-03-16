@@ -3,7 +3,8 @@
         "base_url": "http://results.formula-simracing.net",
         "create_session_url": "https://api.formula1.com/v1/account/Subscriber/CreateSession",
         "league_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/leaderboards/league?league_id={}",
-        "user_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/users/{}"
+        "user_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/users/{}",
+        "team_url": "https://f1_whitelabel_new.playon.co/partner_games/f1/picked_teams/{}"
     },
     "division_map": {
         "wc": "world championship",
