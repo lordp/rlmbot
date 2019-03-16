@@ -124,17 +124,40 @@ def update_fantasy_details(league, config, f1_cookie):
             entrant['picks'] = {
                 'drivers': [],
                 'team': None,
-                'score': content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
+                'race_score': 0,
+                'budget': 0
             }
+            entrant['score'] = content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
 
-            for entry in content['user']['this_week_player_ids']['slot_1']:
-                if entry <= 10:
-                    entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
-                else:
-                    entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
+            try:
+                team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_ids"][-1]
+                tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
+                if tr.status_code in [200, 304]:
+                    team_content = json.loads(tr.content.decode("utf-8"))
+                    for entry in team_content['picked_team']['picked_players']:
+                        if entry["player"]["position_id"] == 2:
+                            entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
+                        else:
+                            entrant['picks']['drivers'].append(
+                                config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
+                            )
+                        entrant['picks']["race_score"] += entry["score"]
+
+                    entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
+                        team_content['picked_team']['boosted_player_id']
+                    )]
+                    entrant['picks']['budget'] = round(team_content['picked_team']['budget_remaining'], 2)
+            except KeyError:
+                print(f"User {league['players'][str(entrant['user_id'])]} does not have historical team picks")
+                for entry in content['user']['this_week_player_ids']['slot_1']:
+                    if entry <= 10:
+                        entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
+                    else:
+                        entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
 
             if str(entrant['user_id']) not in league['players']:
                 entrant['user'] = f"Unknown ({entrant['user_id']})"
+                print(entrant["first_name"], entrant["last_name"])
             else:
                 entrant['user'] = league['players'][str(entrant['user_id'])]
 
