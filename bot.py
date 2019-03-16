@@ -261,7 +261,7 @@ class FSRBot:
             with open(f"{league}.json") as infile:
                 league = json.load(infile)
 
-            data = [["Name", "Total", "Race", "Drivers", "Team"]]
+            data = [["Name", "Total", "Race", "Budget", "Drivers", "Team"]]
             for entry in league:
                 try:
                     drivers = ", ".join(entry["picks"]["drivers"])
@@ -274,7 +274,8 @@ class FSRBot:
                     [
                         entry["user"],
                         format_float(entry["score"]),
-                        0,  # format_float(entry["race_score"]),
+                        format_float(entry["picks"]["race_score"]),
+                        format_float(entry["picks"]["budget"]),
                         drivers,
                         team,
                     ]
@@ -285,6 +286,7 @@ class FSRBot:
             table_instance.outer_border = False
             table_instance.justify_columns[1] = "center"
             table_instance.justify_columns[2] = "center"
+            table_instance.justify_columns[3] = "center"
 
             content = "```{}```".format(table_instance.table)
         else:
