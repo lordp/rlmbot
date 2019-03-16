@@ -3,6 +3,8 @@ import json
 from urllib import parse
 from base64 import b64encode
 import requests
+import os
+from datetime import datetime
 
 p = engine()
 
@@ -80,29 +82,45 @@ def get_current_season(division, bot):
 
 
 def generate_f1_cookie(config, credentials):
-    headers = {
-        'apiKey': credentials['fantasy']['apikey'],
-        'cd-systemid': credentials['fantasy']['cd-systemid'],
-        'Content-Type': 'application/json',
-        'cd-language': 'en-US'
-    }
+    try:
+        mtime = datetime.fromtimestamp(os.stat('cookie.txt').st_mtime)
+        now = datetime.now()
+        regenerate = (now - mtime).days > 1
+    except FileNotFoundError:
+        regenerate = True
 
-    payload = json.dumps({
-        'Login': credentials['fantasy']['username'],
-        'Password': credentials['fantasy']['password']
-    })
+    if regenerate:
+        print('Regenerating cookie')
+        headers = {
+            'apiKey': credentials['fantasy']['apikey'],
+            'cd-systemid': credentials['fantasy']['cd-systemid'],
+            'Content-Type': 'application/json',
+            'cd-language': 'en-US'
+        }
 
-    response = requests.post(config['urls']['create_session_url'], data=payload, headers=headers)
-    if response.status_code not in [200, 304]:
-        return False
+        payload = json.dumps({
+            'Login': credentials['fantasy']['username'],
+            'Password': credentials['fantasy']['password']
+        })
 
-    body = json.loads(response.content.decode('utf-8'))
+        response = requests.post(config['urls']['create_session_url'], data=payload, headers=headers)
+        if response.status_code not in [200, 304]:
+            return False
 
-    info = {"data": {"subscriptionStatus": "inactive", "subscriptionToken": body['data']['subscriptionToken']},
-            "profile": {"SubscriberId": 34767804, "country": "NZL", "firstName": "Darryl"}}
+        body = json.loads(response.content.decode('utf-8'))
 
-    cookie = parse.quote(json.dumps(info))
-    return b64encode("account-info={}".format(cookie).encode('utf8')).decode('utf8')
+        info = {"data": {"subscriptionStatus": "inactive", "subscriptionToken": body['data']['subscriptionToken']},
+                "profile": {"SubscriberId": 34767804, "country": "NZL", "firstName": "Darryl"}}
+
+        cookie = parse.quote(json.dumps(info))
+        b64cookie = b64encode("account-info={}".format(cookie).encode('utf8')).decode('utf8')
+        with open('cookie.txt', 'w') as outfile:
+            outfile.write(b64cookie)
+        return b64cookie
+    else:
+        print('Using stored cookie')
+        with open('cookie.txt') as infile:
+            return infile.read()
 
 
 def update_fantasy_details(league, config, f1_cookie):
