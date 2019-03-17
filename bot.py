@@ -309,7 +309,7 @@ class FSRBot:
     @commands.command()
     async def fantasy_update(self, ctx):
         """Update the fantasy details (points, position, etc)"""
-        await ctx.send("This command takes about a minute to complete, please be patient.")
+        await ctx.send("This command takes a couple of minutes to complete, please be patient.")
         if 'fantasy' not in self.credentials:
             msg = "Credentials missing."
         else:
