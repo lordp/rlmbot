@@ -120,7 +120,7 @@ def generate_f1_cookie(config, credentials):
     else:
         print('Using stored cookie')
         with open('cookie.txt') as infile:
-            return infile.read()
+            return infile.read().strip()
 
 
 def update_fantasy_details(league, config, f1_cookie):
