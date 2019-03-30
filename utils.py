@@ -148,7 +148,11 @@ def update_fantasy_details(league, config, f1_cookie):
             entrant['score'] = content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
 
             try:
-                team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_ids"][-1]
+                if len(content["user"]["current_picked_teams_info"]) > 0:
+                    team_id = content["user"]["current_picked_teams_info"]["slot_1"]["id"]
+                else:
+                    team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_ids"][-1]
+
                 tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
                 if tr.status_code in [200, 304]:
                     team_content = json.loads(tr.content.decode("utf-8"))
