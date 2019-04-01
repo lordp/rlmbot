@@ -10,6 +10,7 @@ from dateutil.utils import today
 from dateutil.tz import *
 from dateutil.relativedelta import *
 import json
+import asyncio
 
 
 class FSRBot:
@@ -320,7 +321,8 @@ class FSRBot:
                 msg = "This server was not found in fantasy settings."
             else:
                 league = self.config['fantasy'][str(ctx.guild.id)]
-                update_fantasy_details(league, self.config, f1_cookie)
+                msg = await ctx.send("Updating:")
+                await update_fantasy_details(msg, league, self.config, f1_cookie)
                 msg = "Fantasy details updated."
 
         await ctx.send(msg)
