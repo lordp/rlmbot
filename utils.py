@@ -110,7 +110,7 @@ def generate_f1_cookie(config, credentials):
         body = json.loads(response.content.decode('utf-8'))
 
         info = {"data": {"subscriptionStatus": "inactive", "subscriptionToken": body['data']['subscriptionToken']},
-                "profile": {"SubscriberId": 34767804, "country": "NZL", "firstName": "Darryl"}}
+                "profile": {"SubscriberId": 80689239, "country": "NZL", "firstName": "VWDCPC"}}
 
         cookie = parse.quote(json.dumps(info))
         b64cookie = b64encode("account-info={}".format(cookie).encode('utf8')).decode('utf8')
