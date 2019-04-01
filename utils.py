@@ -142,8 +142,7 @@ def update_fantasy_details(league, config, f1_cookie):
             entrant['picks'] = {
                 'drivers': [],
                 'team': None,
-                'race_score': 0,
-                'budget': 0
+                'race_score': 0
             }
             entrant['score'] = content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
 
@@ -168,7 +167,6 @@ def update_fantasy_details(league, config, f1_cookie):
                     entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
                         team_content['picked_team']['boosted_player_id']
                     )]
-                    entrant['picks']['budget'] = round(team_content['picked_team']['budget_remaining'], 2)
             except KeyError:
                 print(f"User {league['players'][str(entrant['user_id'])]} does not have historical team picks")
                 for entry in content['user']['this_week_player_ids']['slot_1']:
