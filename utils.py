@@ -68,7 +68,7 @@ def format_delta(delta):
 
 def get_current_season(division, bot):
     if division.lower() not in bot.config["division_season"]:
-        r = bot.session.get(f"{bot.base_url}/api/info/{division.lower()}")
+        r = bot.session.get(f"{bot.config['urls']['base_url']}/api/info/{division.lower()}")
         info = json.loads(r.content)
         if "season" not in info:
             return False
