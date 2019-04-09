@@ -183,6 +183,7 @@ class RLMBot:
             table_instance = AsciiTable(data)
             table_instance.inner_column_border = False
             table_instance.outer_border = False
+            table_instance.justify_columns[3] = "center"
 
             season_info = self.config["season_info"][season_id]
             season = f"Name: {season_info['name']} ({season_info['start_date']} to {season_info['end_date']})"
