@@ -5,6 +5,7 @@ from base64 import b64encode
 import requests
 import os
 from datetime import datetime
+import re
 import asyncio
 
 p = engine()
@@ -186,3 +187,14 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
         json.dump(filtered_entrants, outfile, indent=4)
 
     return True
+
+
+def find_emojis(msg, bot):
+    try:
+        for this_emoji in re.findall(r':([^:]+):', msg):
+            emoji = next(iter([(e.id, e.name) for e in bot.emojis if e.name.lower() == this_emoji.lower()]))
+            msg = re.sub(r':{}:'.format(this_emoji), '<:{}:{}>'.format(emoji[1], emoji[0]), msg)
+    except StopIteration:
+        pass
+
+    return msg

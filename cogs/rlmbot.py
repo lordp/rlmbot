@@ -324,3 +324,15 @@ class RLMBot:
                 msg = "Fantasy details updated."
 
         await ctx.send(msg)
+
+    @commands.command(hidden=True)
+    async def parrot(self, ctx, guild, channel, msg):
+        try:
+            guild_obj = next(iter([x for x in ctx.bot.guilds if x.name == guild]))
+            if guild_obj:
+                channel_obj = next(iter([x for x in guild_obj.channels if x.name == channel]))
+                if channel_obj:
+                    msg = find_emojis(msg, ctx.bot)
+                    await channel_obj.send(msg)
+        except StopIteration:
+            await ctx.send(f"Guild '{guild}' or channel '{channel}' not found")
