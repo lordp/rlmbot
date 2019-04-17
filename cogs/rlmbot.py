@@ -10,7 +10,7 @@ from dateutil.relativedelta import *
 import json
 
 
-class RLMBot:
+class RLMBot(commands.Cog):
     def __init__(self, bot_obj):
         self.bot = bot_obj
         self.config = {}
