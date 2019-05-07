@@ -170,13 +170,16 @@ class RLMBot(commands.Cog):
                             )
                         )
                         prev_pos = standings[info["index"] - 1]
-                        next_pos = standings[info["index"] + 1]
                         if prev_pos["position"] > 6:
                             data.append(["..."])
                         if prev_pos["position"] > 5:
                             add_row(data, prev_pos, teams_disabled)
                         add_row(data, info["details"], teams_disabled)
-                        add_row(data, next_pos, teams_disabled)
+                        try:
+                            next_pos = standings[info["index"] + 1]
+                            add_row(data, next_pos, teams_disabled)
+                        except IndexError:
+                            pass
                     except StopIteration:
                         pass
 
