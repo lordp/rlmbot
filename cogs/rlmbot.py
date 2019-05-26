@@ -263,8 +263,9 @@ class RLMBot(commands.Cog):
             with open(f"{league}.json") as infile:
                 league = json.load(infile)
 
-            data = [["Name", "Total", "Race", "Drivers", "Team", "Turbo"]]
-            for entry in league:
+            headers = ["Pos", "Name", "Total", "Race", "Drivers", "Team", "Turbo"]
+            data = []
+            for index, entry in enumerate(league):
                 try:
                     drivers = ", ".join(entry["picks"]["drivers"])
                     team = entry["picks"]["team"]
@@ -274,6 +275,7 @@ class RLMBot(commands.Cog):
 
                 data.append(
                     [
+                        p.ordinal(index + 1),
                         entry["user"],
                         format_float(entry["score"]),
                         format_float(entry["picks"]["race_score"]),
@@ -283,18 +285,23 @@ class RLMBot(commands.Cog):
                     ]
                 )
 
-            table_instance = AsciiTable(data)
-            table_instance.inner_column_border = False
-            table_instance.outer_border = False
-            table_instance.justify_columns[1] = "center"
-            table_instance.justify_columns[2] = "center"
-            table_instance.justify_columns[5] = "center"
+            for group in grouper(data, 10):
+                table_data = [headers]
+                for row in list(group):
+                    if row is not None:
+                        table_data.append(row)
 
-            content = "```{}```".format(table_instance.table)
+                table_instance = AsciiTable(table_data)
+                table_instance.inner_column_border = False
+                table_instance.outer_border = False
+                table_instance.justify_columns[2] = "center"
+                table_instance.justify_columns[3] = "center"
+                table_instance.justify_columns[6] = "center"
+
+                content = "```{}```".format(table_instance.table)
+                await ctx.send(content)
         else:
-            content = f"League {league} not found."
-
-        await ctx.send(content)
+            await ctx.send(f"League {league} not found.")
 
     @commands.command(hidden=True)
     async def fantasy_set(self, ctx, league_id, tag):

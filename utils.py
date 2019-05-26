@@ -6,7 +6,7 @@ import requests
 import os
 from datetime import datetime
 import re
-import asyncio
+from itertools import zip_longest
 
 p = engine()
 
@@ -198,3 +198,8 @@ def find_emojis(msg, bot):
         pass
 
     return msg
+
+
+def grouper(iterable, n, fillvalue=None):
+    args = [iter(iterable)] * n
+    return zip_longest(*args, fillvalue=fillvalue)
