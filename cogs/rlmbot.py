@@ -241,8 +241,7 @@ class RLMBot(commands.Cog):
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
-    @commands.command()
-    async def fantasy(self, ctx):
+    async def _show_fantasy(self, ctx):
         """Show the F1 fantasy table."""
         league = None
 
@@ -303,6 +302,10 @@ class RLMBot(commands.Cog):
         else:
             await ctx.send(f"League {league} not found.")
 
+    @commands.command()
+    async def fantasy(self, ctx):
+        await self._show_fantasy(ctx)
+
     @commands.command(hidden=True)
     async def fantasy_set(self, ctx, league_id, tag):
         self.config['fantasy'][str(ctx.guild.id)] = {
@@ -334,6 +337,7 @@ class RLMBot(commands.Cog):
                 msg = "Fantasy details updated."
 
         await ctx.send(msg)
+        await self._show_fantasy(ctx)
 
     @commands.command(hidden=True)
     async def parrot(self, ctx, guild, channel, msg):
