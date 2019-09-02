@@ -279,7 +279,6 @@ class RLMBot(commands.Cog):
 
 
     async def _show_fantasy(self, ctx):
-        """Show the F1 fantasy table."""
         league = self._find_league(ctx)
 
         if league:
@@ -328,10 +327,12 @@ class RLMBot(commands.Cog):
 
     @commands.command()
     async def fantasy(self, ctx):
+        """Show the F1 fantasy table."""
         await self._show_fantasy(ctx)
 
     @commands.command()
     async def fantasy_result(self, ctx):
+        """Show your points from the most recent race."""
         league = self._find_league(ctx)
 
         if league:
