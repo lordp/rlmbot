@@ -18,8 +18,7 @@ class RLMBot(commands.Cog):
 
         self.load_config()
 
-        req_sess = requests.session()
-        self.session = CacheControl(req_sess)
+        self.session = CacheControl(requests.session())
 
     def load_config(self):
         try:
