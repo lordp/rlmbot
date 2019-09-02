@@ -138,6 +138,12 @@ class F1Fantasy(commands.Cog):
 
             player = self._find_player(ctx)
             if player:
+                totals = {
+                    "points": 0,
+                    "price": 0,
+                    "picked": 0
+                }
+
                 headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
                 data = [headers]
                 for index, entry in details[str(player)]["drivers"].items():
@@ -151,6 +157,10 @@ class F1Fantasy(commands.Cog):
                         ]
                     )
 
+                    totals["points"] += entry["score"]
+                    totals["price"] += entry["price"]
+                    totals["picked"] += entry["picked"]
+
                 data.append([])
                 team = details[str(player)]["team"]
                 data.append(
@@ -160,6 +170,23 @@ class F1Fantasy(commands.Cog):
                         team["score"],
                         team["price"],
                         team["picked"]
+                    ]
+                )
+
+                totals["points"] += team["score"]
+                totals["price"] += team["price"]
+                totals["picked"] += team["picked"]
+
+                totals["picked"] = round(totals["picked"] / 6, 1)
+
+                data.append([])
+                data.append(
+                    [
+                        "Total/Average",
+                        "",
+                        totals["points"],
+                        totals["price"],
+                        totals["picked"]
                     ]
                 )
 
