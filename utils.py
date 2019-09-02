@@ -149,7 +149,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
 
             details[entrant['user_id']] = {}
 
-            await msg.edit(content=f"Updating: {entrant['user']} ({index + 1}/{len(filtered_entrants)})")
+            await msg.edit(content=f"Updating: {entrant['user']['name']} ({index + 1}/{len(filtered_entrants)})")
             r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
             if r.status_code in [200, 304]:
                 content = json.loads(r.content.decode('utf-8'))
@@ -192,7 +192,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                         else:
                             entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
 
-                print(f"{entrant['user']} collected")
+                print(f"{entrant['user']['name']} collected")
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)

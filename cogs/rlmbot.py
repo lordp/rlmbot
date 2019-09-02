@@ -299,7 +299,7 @@ class RLMBot(commands.Cog):
                 data.append(
                     [
                         p.ordinal(index + 1),
-                        entry["user"],
+                        entry["user"]["name"],
                         format_float(entry["score"]),
                         format_float(entry["picks"]["race_score"]),
                         drivers,
