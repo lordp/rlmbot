@@ -147,7 +147,10 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
             else:
                 entrant['user'] = league['players'][str(entrant['user_id'])]
 
-            details[entrant['user_id']] = {}
+            details[entrant['user_id']] = {
+                "team": {},
+                "drivers": {}
+            }
 
             await msg.edit(content=f"Updating: {entrant['user']['name']} ({index + 1}/{len(filtered_entrants)})")
             r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
@@ -164,25 +167,32 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                     team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_ids"][-1]
                     tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
                     if tr.status_code in [200, 304]:
-                        team_content = json.loads(tr.content.decode("utf-8"))
-                        for entry in team_content['picked_team']['picked_players']:
+                        tc = json.loads(tr.content.decode("utf-8"))
+                        for entry in tc['picked_team']['picked_players']:
                             driver = config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
                             if entry["player"]["position_id"] == 2:
                                 entrant['picks']['team'] = driver
+                                details[entrant['user_id']]["team"] = {
+                                    "name": entry["player"]["display_name"],
+                                    "price": entry["player"]["price"],
+                                    "picked": entry["player"]["picked_percentage"],
+                                    "score": entry["score"],
+                                    "turbo": None
+                                }
                             else:
                                 entrant['picks']['drivers'].append(driver)
+                                details[entrant['user_id']]["drivers"][entry["player"]["id"]] = {
+                                    "name": entry["player"]["display_name"],
+                                    "price": entry["player"]["price"],
+                                    "picked": entry["player"]["picked_percentage"],
+                                    "score": entry["score"],
+                                    "turbo": tc["picked_team"]["boosted_player_id"] == entry["player"]["id"]
+                                }
+
                             entrant['picks']["race_score"] += entry["score"]
 
-                            details[entrant['user_id']][entry["player"]["id"]] = {
-                                "name": entry["player"]["display_name"],
-                                "price": entry["player"]["price"],
-                                "picked": entry["player"]["picked_percentage"],
-                                "score": entry["score"],
-                                "turbo": team_content["picked_team"]["boosted_player_id"] == entry["player"]["id"]
-                            }
-
                         entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
-                            team_content['picked_team']['boosted_player_id']
+                            tc['picked_team']['boosted_player_id']
                         )]
                 except KeyError:
                     print(f"User {entrant['user']} does not have historical team picks")

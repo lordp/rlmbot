@@ -138,10 +138,9 @@ class F1Fantasy(commands.Cog):
 
             player = self._find_player(ctx)
             if player:
-
                 headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
                 data = [headers]
-                for index, entry in details[str(player)].items():
+                for index, entry in details[str(player)]["drivers"].items():
                     data.append(
                         [
                             entry["name"],
@@ -151,6 +150,18 @@ class F1Fantasy(commands.Cog):
                             entry["picked"]
                         ]
                     )
+
+                data.append([])
+                team = details[str(player)]["team"]
+                data.append(
+                    [
+                        team["name"],
+                        "",
+                        team["score"],
+                        team["price"],
+                        team["picked"]
+                    ]
+                )
 
                 table_instance = AsciiTable(data)
                 table_instance.inner_column_border = False
