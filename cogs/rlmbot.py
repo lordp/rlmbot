@@ -241,8 +241,7 @@ class RLMBot(commands.Cog):
 
         await ctx.send(f"```{season}\n\n{msg}```")
 
-    async def _show_fantasy(self, ctx):
-        """Show the F1 fantasy table."""
+    def _find_league(self, ctx):
         league = None
 
         try:
@@ -257,6 +256,31 @@ class RLMBot(commands.Cog):
             )
         except StopIteration:
             pass
+
+        return league
+
+    def _find_player(self, ctx):
+        player = None
+
+        try:
+            player = next(
+                iter(
+                    [
+                        f1_id
+                        for f1_id, info in self.config["fantasy"][str(ctx.guild.id)]["players"].items()
+                        if info["id"] == ctx.author.id
+                    ]
+                )
+            )
+        except StopIteration:
+            pass
+
+        return player
+
+
+    async def _show_fantasy(self, ctx):
+        """Show the F1 fantasy table."""
+        league = self._find_league(ctx)
 
         if league:
             with open(f"{league}.json") as infile:
@@ -305,6 +329,43 @@ class RLMBot(commands.Cog):
     @commands.command()
     async def fantasy(self, ctx):
         await self._show_fantasy(ctx)
+
+    @commands.command()
+    async def fantasy_result(self, ctx):
+        league = self._find_league(ctx)
+
+        if league:
+            with open(f"{league}-details.json") as infile:
+                details = json.load(infile)
+
+            player = self._find_player(ctx)
+
+            headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
+            data = [headers]
+            for index, entry in details[str(player)].items():
+                data.append(
+                    [
+                        entry["name"],
+                        "Yes" if entry["turbo"] else "No",
+                        entry["score"],
+                        entry["price"],
+                        entry["picked"]
+                    ]
+                )
+
+            table_instance = AsciiTable(data)
+            table_instance.inner_column_border = False
+            table_instance.outer_border = False
+            table_instance.justify_columns[1] = "center"
+            table_instance.justify_columns[2] = "right"
+            table_instance.justify_columns[3] = "right"
+            table_instance.justify_columns[4] = "right"
+
+            msg = "```{}```".format(table_instance.table)
+        else:
+            msg = f"League {league} not found."
+
+        await ctx.send(msg)
 
     @commands.command(hidden=True)
     async def fantasy_set(self, ctx, league_id, tag):

@@ -134,6 +134,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
     if r.status_code in [200, 304]:
         content = json.loads(r.content.decode('utf-8'))
         entrants = content['leaderboard']['leaderboard_entrants']
+        details = {}
     else:
         return False
 
@@ -145,6 +146,8 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                 print(entrant["first_name"], entrant["last_name"])
             else:
                 entrant['user'] = league['players'][str(entrant['user_id'])]
+
+            details[entrant['user_id']] = {}
 
             await msg.edit(content=f"Updating: {entrant['user']} ({index + 1}/{len(filtered_entrants)})")
             r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
@@ -170,6 +173,14 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                                 entrant['picks']['drivers'].append(driver)
                             entrant['picks']["race_score"] += entry["score"]
 
+                            details[entrant['user_id']][entry["player"]["id"]] = {
+                                "name": entry["player"]["display_name"],
+                                "price": entry["player"]["price"],
+                                "picked": entry["player"]["picked_percentage"],
+                                "score": entry["score"],
+                                "turbo": team_content["picked_team"]["boosted_player_id"] == entry["player"]["id"]
+                            }
+
                         entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
                             team_content['picked_team']['boosted_player_id']
                         )]
@@ -185,6 +196,9 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
+
+    with open(f"{league['tag']}-details.json", 'w') as outfile:
+        json.dump(details, outfile, indent=4)
 
     return True
 
