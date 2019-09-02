@@ -340,29 +340,32 @@ class RLMBot(commands.Cog):
                 details = json.load(infile)
 
             player = self._find_player(ctx)
+            if player:
 
-            headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
-            data = [headers]
-            for index, entry in details[str(player)].items():
-                data.append(
-                    [
-                        entry["name"],
-                        "Yes" if entry["turbo"] else "No",
-                        entry["score"],
-                        entry["price"],
-                        entry["picked"]
-                    ]
-                )
+                headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
+                data = [headers]
+                for index, entry in details[str(player)].items():
+                    data.append(
+                        [
+                            entry["name"],
+                            "Yes" if entry["turbo"] else "No",
+                            entry["score"],
+                            entry["price"],
+                            entry["picked"]
+                        ]
+                    )
 
-            table_instance = AsciiTable(data)
-            table_instance.inner_column_border = False
-            table_instance.outer_border = False
-            table_instance.justify_columns[1] = "center"
-            table_instance.justify_columns[2] = "right"
-            table_instance.justify_columns[3] = "right"
-            table_instance.justify_columns[4] = "right"
+                table_instance = AsciiTable(data)
+                table_instance.inner_column_border = False
+                table_instance.outer_border = False
+                table_instance.justify_columns[1] = "center"
+                table_instance.justify_columns[2] = "right"
+                table_instance.justify_columns[3] = "right"
+                table_instance.justify_columns[4] = "right"
 
-            msg = "```{}```".format(table_instance.table)
+                msg = "```{}```".format(table_instance.table)
+            else:
+                msg = f"Player not found."
         else:
             msg = f"League {league} not found."
 
