@@ -151,9 +151,9 @@ class F1Fantasy(commands.Cog):
                         [
                             entry["name"],
                             "Yes" if entry["turbo"] else "No",
-                            entry["score"],
-                            entry["price"],
-                            entry["picked"]
+                            format_float(entry["score"]),
+                            format_float(entry["price"]),
+                            format_float(entry["picked"])
                         ]
                     )
 
@@ -167,9 +167,9 @@ class F1Fantasy(commands.Cog):
                     [
                         team["name"],
                         "",
-                        team["score"],
-                        team["price"],
-                        team["picked"]
+                        format_float(team["score"]),
+                        format_float(team["price"]),
+                        format_float(team["picked"])
                     ]
                 )
 
@@ -184,9 +184,9 @@ class F1Fantasy(commands.Cog):
                     [
                         "Total/Average",
                         "",
-                        totals["points"],
-                        totals["price"],
-                        totals["picked"]
+                        format_float(round(totals["points"], 1)),
+                        format_float(round(totals["price"], 1)),
+                        format_float(round(totals["picked"], 1))
                     ]
                 )
 
