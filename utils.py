@@ -139,7 +139,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
     for index, entrant in enumerate(filtered_entrants):
         if not int(entrant['user_id']) in league['ignore']:
             if str(entrant['user_id']) not in league['players']:
-                entrant['user'] = f"Unknown ({entrant['team_name']})"
+                entrant['user'] = { "name": f"Unknown ({entrant['team_name']} / {entrant['user_id']})", "id": "" }
                 print(entrant["first_name"], entrant["last_name"])
             else:
                 entrant['user'] = league['players'][str(entrant['user_id'])]
@@ -192,7 +192,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                             tc['picked_team']['boosted_player_id']
                         )]
                 except KeyError:
-                    print(f"User {entrant['user']} does not have historical team picks")
+                    print(f"User {entrant['user']['name']} does not have historical team picks")
                     if 'slot_1' in content['user']['this_week_player_ids']:
                         for entry in content['user']['this_week_player_ids']['slot_1']:
                             if entry <= 10:
@@ -202,7 +202,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                     else:
                         print(f"... or current team picks")
 
-                print(f"{entrant['user']} collected")
+                print(f"{entrant['user']['name']} collected")
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
