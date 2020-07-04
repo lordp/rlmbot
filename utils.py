@@ -95,9 +95,7 @@ def generate_f1_cookie(config, credentials):
         print('Regenerating cookie')
         headers = {
             'apiKey': credentials['fantasy']['apikey'],
-            'cd-systemid': credentials['fantasy']['cd-systemid'],
             'Content-Type': 'application/json',
-            'cd-language': 'en-US'
         }
 
         payload = json.dumps({
@@ -111,11 +109,10 @@ def generate_f1_cookie(config, credentials):
 
         body = json.loads(response.content.decode('utf-8'))
 
-        info = {"data": {"subscriptionStatus": "inactive", "subscriptionToken": body['data']['subscriptionToken']},
-                "profile": {"SubscriberId": 80689239, "country": "NZL", "firstName": "VWDCPC"}}
+        info = {"data": {"subscriptionToken": body['data']['subscriptionToken']}}
 
         cookie = parse.quote(json.dumps(info))
-        b64cookie = b64encode("account-info={}".format(cookie).encode('utf8')).decode('utf8')
+        b64cookie = b64encode(cookie.encode('utf8')).decode('utf8')
         with open('cookie.txt', 'w') as outfile:
             outfile.write(b64cookie)
         return b64cookie
@@ -196,13 +193,16 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                         )]
                 except KeyError:
                     print(f"User {entrant['user']} does not have historical team picks")
-                    for entry in content['user']['this_week_player_ids']['slot_1']:
-                        if entry <= 10:
-                            entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
-                        else:
-                            entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
+                    if 'slot_1' in content['user']['this_week_player_ids']:
+                        for entry in content['user']['this_week_player_ids']['slot_1']:
+                            if entry <= 10:
+                                entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
+                            else:
+                                entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
+                    else:
+                        print(f"... or current team picks")
 
-                print(f"{entrant['user']['name']} collected")
+                print(f"{entrant['user']} collected")
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
