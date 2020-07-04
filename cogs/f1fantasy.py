@@ -218,6 +218,32 @@ class F1Fantasy(commands.Cog):
 
         await ctx.send(f'{tag} set to this server.')
 
+    @fantasy.group(name="add-player")
+    @commands.is_owner()
+    async def add_player(self, ctx, player, alias, f1_id):
+        """Add player info."""
+        players = self.config['fantasy'][str(ctx.guild.id)]['players']
+        for member in ctx.guild.members:
+            if player.lower() in member.name.lower():
+                found = False
+                for _, info in players.items():
+                    if info['name'].lower() == alias.lower():
+                        info['name'] = alias
+                        info['id'] = member.id
+                        found = True
+                        msg = 'Updated'
+                if not found:
+                    players[f1_id] = {
+                        "name": alias,
+                        "id": member.id
+                    }
+
+                    msg = 'added'
+
+        self.save_config()
+
+        await ctx.send(f'{alias} {msg}.')
+
     @fantasy.group()
     async def update(self, ctx):
         """Update the fantasy details (points, position, etc)"""
