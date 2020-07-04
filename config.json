@@ -1,10 +1,10 @@
 {
     "urls": {
         "base_url": "http://results.formula-simracing.net",
-        "create_session_url": "https://api.formula1.com/v1/account/Subscriber/CreateSession",
-        "league_url": "https://f1whitelabel.fantasyaccount.com/partner_games/f1/leaderboards/league?league_id={}",
-        "user_url": "https://f1whitelabel.fantasyaccount.com/partner_games/f1/users/{}",
-        "team_url": "https://f1whitelabel.fantasyaccount.com/partner_games/f1/picked_teams/{}"
+        "create_session_url": "https://api.formula1.com/v2/account/subscriber/authenticate/by-password",
+        "league_url": "https://fantasy-api.formula1.com/partner_games/f1/leaderboards/leagues?league_id={}&game_period_id=",
+        "user_url": "https://fantasy-api.formula1.com/partner_games/f1/users/{}",
+        "team_url": "https://fantasy-api.formula1.com/partner_games/f1/picked_teams/{}"
     },
     "division_map": {
         "wc": "world championship",
