@@ -232,7 +232,7 @@ class F1Fantasy(commands.Cog):
                 msg = "This server was not found in fantasy settings."
             else:
                 league = self.config['fantasy'][str(ctx.guild.id)]
-                msg = await ctx.send(f"Updating {league}:")
+                msg = await ctx.send(f"Updating {league['tag']}:")
                 await update_fantasy_details(msg, league, self.config, f1_cookie)
                 msg = "Fantasy details updated."
 
