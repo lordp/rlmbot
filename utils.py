@@ -161,7 +161,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                 entrant['score'] = content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
 
                 try:
-                    team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_ids"][-1]
+                    team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_info"][-1]["picked_team_id"]
                     tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
                     if tr.status_code in [200, 304]:
                         tc = json.loads(tr.content.decode("utf-8"))
