@@ -76,7 +76,7 @@ class F1Fantasy(commands.Cog):
             with open(f"{league}.json") as infile:
                 league = json.load(infile)
 
-            headers = ["Pos", "Name", "Total", "Race", "Drivers", "Team", "Turbo"]
+            headers = ["Pos", "Name", "Total", "Race", "Drivers", "Team", "Turbo", "Mega"]
             data = []
             for index, entry in enumerate(league):
                 try:
@@ -94,7 +94,8 @@ class F1Fantasy(commands.Cog):
                         format_float(entry["picks"]["race_score"]),
                         drivers,
                         team,
-                        entry["picks"]["turbo"] if "turbo" in entry["picks"] else "???"
+                        entry["picks"]["turbo"] if "turbo" in entry["picks"] else "???",
+                        entry["picks"]["mega"] if "mega" in entry["picks"] else "???"
                     ]
                 )
 
@@ -144,13 +145,14 @@ class F1Fantasy(commands.Cog):
                     "picked": 0
                 }
 
-                headers = ["Name", "Turbo", "Points", "Price", "Picked %"]
+                headers = ["Name", "Turbo", "Mega", "Points", "Price", "Picked %"]
                 data = [headers]
                 for index, entry in details[str(player)]["drivers"].items():
                     data.append(
                         [
                             entry["name"],
                             "Yes" if entry["turbo"] else "No",
+                            "Yes" if entry["mega"] else "No",
                             format_float(entry["score"]),
                             format_float(entry["price"]),
                             format_float(entry["picked"])

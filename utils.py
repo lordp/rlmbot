@@ -191,6 +191,11 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                         entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
                             tc['picked_team']['boosted_player_id']
                         )]
+
+                        if str(tc['picked_team']["mega_boosted_player_id"]) in config['fantasy']['drivers_teams']:
+                            entrant['picks']['mega'] = config['fantasy']['drivers_teams'][str(
+                                tc['picked_team']['mega_boosted_player_id']
+                            )]
                 except KeyError:
                     print(f"User {entrant['user']['name']} does not have historical team picks")
                     if 'slot_1' in content['user']['this_week_player_ids']:
