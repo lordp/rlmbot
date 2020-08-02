@@ -4,7 +4,8 @@
         "create_session_url": "https://api.formula1.com/v2/account/subscriber/authenticate/by-password",
         "league_url": "https://fantasy-api.formula1.com/partner_games/f1/leaderboards/leagues?league_id={}&game_period_id=",
         "user_url": "https://fantasy-api.formula1.com/partner_games/f1/users/{}",
-        "team_url": "https://fantasy-api.formula1.com/partner_games/f1/picked_teams/{}"
+        "team_url": "https://fantasy-api.formula1.com/partner_games/f1/picked_teams/{}",
+        "events_url": "https://fantasy-api.formula1.com/partner_games/f1/players/{}/game_periods_scores"
     },
     "division_map": {
         "wc": "world championship",
