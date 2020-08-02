@@ -169,6 +169,7 @@ class F1Fantasy(commands.Cog):
                     [
                         team["name"],
                         "",
+                        "",
                         format_float(team["score"]),
                         format_float(team["price"]),
                         format_float(team["picked"])
@@ -185,6 +186,7 @@ class F1Fantasy(commands.Cog):
                 data.append(
                     [
                         "Total/Average",
+                        "",
                         "",
                         format_float(round(totals["points"], 1)),
                         format_float(round(totals["price"], 1)),

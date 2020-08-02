@@ -184,7 +184,8 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                                     "price": entry["player"]["price"],
                                     "picked": entry["player"]["picked_percentage"],
                                     "score": entry["score"],
-                                    "turbo": tc["picked_team"]["boosted_player_id"] == entry["player"]["id"]
+                                    "turbo": tc["picked_team"]["boosted_player_id"] == entry["player"]["id"],
+                                    "mega": tc["picked_team"]["mega_boosted_player_id"] == entry["player"]["id"]
                                 }
 
                         entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
