@@ -165,6 +165,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                     tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
                     if tr.status_code in [200, 304]:
                         tc = json.loads(tr.content.decode("utf-8"))
+                        entrant['picks']['race_score'] = tc['picked_team']['score']
                         for entry in tc['picked_team']['picked_players']:
                             driver = config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
                             if entry["player"]["position_id"] == 2:
@@ -185,8 +186,6 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                                     "score": entry["score"],
                                     "turbo": tc["picked_team"]["boosted_player_id"] == entry["player"]["id"]
                                 }
-
-                            entrant['picks']["race_score"] += entry["score"]
 
                         entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
                             tc['picked_team']['boosted_player_id']
