@@ -232,3 +232,7 @@ def find_emojis(msg, bot):
 def grouper(iterable, n, fillvalue=None):
     args = [iter(iterable)] * n
     return zip_longest(*args, fillvalue=fillvalue)
+
+
+def fix_title_weirdness(value):
+    return value.replace("Th", "th").replace("Rd", "rd").replace("Nd", "nd").replace("St", "st")

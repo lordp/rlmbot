@@ -69,6 +69,24 @@ class F1Fantasy(commands.Cog):
 
         return player
 
+    def _find_driver(self, tag):
+        driver = None
+
+        try:
+            driver = next(
+                iter(
+                    [
+                        f1_id
+                        for f1_id, info in self.config["fantasy"]["drivers_teams"].items()
+                        if info.lower() == tag.lower()
+                    ]
+                )
+            )
+        except StopIteration:
+            pass
+
+        return driver
+
     async def _show_fantasy(self, ctx):
         league = self._find_league(ctx)
 
@@ -268,3 +286,49 @@ class F1Fantasy(commands.Cog):
 
         await ctx.send(msg)
         await self._show_fantasy(ctx)
+
+    @fantasy.group()
+    async def events(self, ctx, tag):
+        """Show the point scoring events for a driver (most recent race)"""
+        await ctx.send("Fetching events, please wait")
+
+        if 'fantasy' not in self.credentials:
+            msg = "Credentials missing."
+        else:
+            f1_cookie = generate_f1_cookie(self.config, self.credentials)
+            if not f1_cookie:
+                msg = "Events fetch failed."
+            elif str(ctx.guild.id) not in self.config['fantasy']:
+                msg = "This server was not found in fantasy settings."
+            else:
+                driver = self._find_driver(tag)
+                if not driver:
+                    msg = f"Driver {tag} not found"
+                else:
+                    headers = {
+                        'X-F1-COOKIE-DATA': f1_cookie
+                    }
+
+                    r = requests.get(self.config['urls']['events_url'].format(driver), headers=headers)
+                    if r.status_code in [200, 304]:
+                        headers = ["Event", "Freq", "Points"]
+                        data = [headers]
+
+                        content = json.loads(r.content.decode('utf-8'))
+                        events = content['game_periods_scores'][-1]
+                        for event in events['events']:
+                            data.append([
+                                fix_title_weirdness(event['display_name'].title()),
+                                event['freq'],
+                                format_float(event['points'])
+                            ])
+
+                        table_instance = AsciiTable(data)
+                        table_instance.inner_column_border = False
+                        table_instance.outer_border = False
+                        table_instance.justify_columns[1] = "center"
+                        table_instance.justify_columns[2] = "center"
+
+                        msg = "```{}```".format(table_instance.table)
+
+        await ctx.send(msg)
