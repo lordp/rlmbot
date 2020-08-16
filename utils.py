@@ -5,6 +5,7 @@ from base64 import b64encode
 import requests
 import os
 from datetime import datetime
+import time
 import re
 from itertools import zip_longest
 
@@ -208,6 +209,9 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
                         print(f"... or current team picks")
 
                 print(f"{entrant['user']['name']} collected")
+
+            # sleep for 2 seconds to try avoid http 429 status codes
+            time.sleep(2)
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
