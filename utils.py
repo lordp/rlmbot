@@ -211,8 +211,8 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
 
                 print(f"{entrant['user']['name']} collected")
 
-            # sleep for 2 seconds to try avoid http 429 status codes
-            time.sleep(2)
+            # sleep for 5 seconds to try avoid http 429 status codes
+            time.sleep(5)
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
