@@ -125,7 +125,8 @@ def generate_f1_cookie(config, credentials):
 
 async def update_fantasy_details(msg, league, config, f1_cookie):
     headers = {
-        'X-F1-COOKIE-DATA': f1_cookie
+        'X-F1-COOKIE-DATA': f1_cookie,
+        'User-Agent': 'VirtualWDCPC F1 Fantasy Discord Bot v0.1'
     }
 
     r = requests.get(config['urls']['league_url'].format(league['f1_id']), headers=headers)
