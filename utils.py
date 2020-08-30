@@ -13,7 +13,7 @@ import sys, traceback
 
 p = engine()
 
-logging.basicConfig(filename='fantasy_info.log', level=logging.DEBUG, format="[%(asctime)s] %(levelname)s: %(message)s")
+logging.basicConfig(filename='fantasy_info.log', level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(message)s")
 
 
 def format_float(num):
