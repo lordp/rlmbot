@@ -158,7 +158,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
         }
 
         logging.info(f"Getting player info - {entrant['user']['name']}")
-        # await msg.edit(content=f"Updating: {entrant['user']['name']} ({index + 1}/{len(filtered_entrants)})")
+        await msg.edit(content=f"Updating: {entrant['user']['name']} ({index + 1}/{len(filtered_entrants)})")
         r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
         if r.status_code in [200, 304]:
             content = json.loads(r.content.decode('utf-8'))
