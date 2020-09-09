@@ -239,7 +239,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
     for _, info in enumerate(filtered_entrants):
         entrant = Entrant(config, league, f1_cookie, headers, info)
 
-        await msg.edit(content=f"Updating: {entrant['user']['name']}")
+        await msg.edit(content=f"Updating: {entrant.name}")
         entrant.retrieve_info()
         if entrant.retry:
             retry.append(entrant)
@@ -250,7 +250,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
         time.sleep(5)
         logging.info("Processing retries")
         for entrant in retry:
-            await msg.edit(content=f"Updating: {entrant['user']['name']}")
+            await msg.edit(content=f"Updating: {entrant.name}")
             entrant.retrieve_info()
             if not entrant.retry:
                 retry.remove(entrant)
