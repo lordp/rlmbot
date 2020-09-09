@@ -91,31 +91,34 @@ class F1Fantasy(commands.Cog):
         league = self._find_league(ctx)
 
         if league:
-            with open(f"{league}.json") as infile:
+            with open(f"{league}-details.json") as infile:
                 league = json.load(infile)
 
             headers = ["Pos", "Name", "Total", "Race", "Drivers", "Team", "Turbo", "Mega"]
             data = []
-            for index, entry in enumerate(league):
+            index = 1
+            for _, entry in league.items():
                 try:
-                    drivers = ", ".join(entry["picks"]["drivers"])
-                    team = entry["picks"]["team"]
+                    drivers = ", ".join([e["short_name"] for e in entry["drivers"]])
+                    team = entry["team"]["short_name"]
                 except KeyError:
                     drivers = ""
                     team = ""
 
                 data.append(
                     [
-                        p.ordinal(index + 1),
-                        entry["user"]["name"],
+                        p.ordinal(index),
+                        entry["name"],
                         format_float(entry["score"]),
-                        format_float(entry["picks"]["race_score"]),
+                        format_float(entry["race_score"]),
                         drivers,
                         team,
-                        entry["picks"]["turbo"] if "turbo" in entry["picks"] else "???",
-                        entry["picks"]["mega"] if "mega" in entry["picks"] else "???"
+                        entry["turbo"] or "???",
+                        entry["mega"] or "???"
                     ]
                 )
+
+                index += 1
 
             for group in grouper(data, 10):
                 table_data = [headers]
@@ -165,12 +168,13 @@ class F1Fantasy(commands.Cog):
 
                 headers = ["Name", "Turbo", "Mega", "Points", "Price", "Picked %"]
                 data = [headers]
-                for index, entry in details[str(player)]["drivers"].items():
+                player_details = details[str(player)]
+                for entry in player_details["drivers"]:
                     data.append(
                         [
                             entry["name"],
-                            "Yes" if entry["turbo"] else "No",
-                            "Yes" if entry["mega"] else "No",
+                            "Yes" if entry["short_name"] == player_details["turbo"] else "No",
+                            "Yes" if entry["short_name"] == player_details["mega"] else "No",
                             format_float(entry["score"]),
                             format_float(entry["price"]),
                             format_float(entry["picked"])
@@ -182,7 +186,7 @@ class F1Fantasy(commands.Cog):
                     totals["picked"] += entry["picked"]
 
                 data.append([])
-                team = details[str(player)]["team"]
+                team = player_details["team"]
                 data.append(
                     [
                         team["name"],

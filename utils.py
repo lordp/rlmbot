@@ -16,6 +16,95 @@ p = engine()
 logging.basicConfig(filename='fantasy_info.log', level=logging.INFO, format="[%(asctime)s] %(levelname)s: %(message)s")
 
 
+class Entrant:
+    def __init__(self, config, league, cookie, headers, info):
+        self.config = config
+        self.league = league
+        self.cookie = cookie
+        self.headers = headers
+
+        self.retry = False
+
+        self.team = None
+        self.drivers = []
+        self.turbo = None
+        self.mega = None
+        self.race_score = 0
+        self.score = 0
+
+        self.discord_id = None
+        self.id = str(info['user_id'])
+        if self.id not in league['players']:
+            self.name = f"Unknown ({info['team_name']} / {self.id})"
+        else:
+            self.name = league['players'][self.id]['name']
+            self.discord_id = league['players'][self.id]['id']
+
+    def retrieve_info(self):
+        logging.info(f"Getting player info - {self.name}")
+        self.retry = False
+
+        r = requests.get(self.config['urls']['user_url'].format(self.id), headers=self.headers)
+        if r.status_code in [200, 304]:
+            content = json.loads(r.content.decode('utf-8'))
+            self.score = content['user']['leaderboard_positions']['slot_1'][self.league['f1_id']]['score']
+
+            logging.info(f"Getting team info")
+            team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_info"][-1]["picked_team_id"]
+            tr = requests.get(self.config['urls']['team_url'].format(team_id), headers=self.headers)
+            if tr.status_code in [200, 304]:
+                tc = json.loads(tr.content.decode("utf-8"))
+                self.race_score = tc['picked_team']['score']
+                for entry in tc['picked_team']['picked_players']:
+                    driver = self.config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
+
+                    if entry["player"]["position_id"] == 2:
+                        self.team = {
+                            "short_name": entry["player"]["external_id"][-3:],
+                            "name": entry["player"]["display_name"],
+                            "price": entry["player"]["price"],
+                            "picked": entry["player"]["current_price_change_info"]["current_selection_percentage"],
+                            "score": entry["score"]
+                        }
+                    else:
+                        self.drivers.append({
+                            "short_name": entry["player"]["external_id"][3:6],
+                            "name": entry["player"]["display_name"],
+                            "price": entry["player"]["price"],
+                            "picked": entry["player"]["current_price_change_info"]["current_selection_percentage"],
+                            "score": entry["score"]
+                        })
+
+                        if str(tc['picked_team']['boosted_player_id']) in self.config['fantasy']['drivers_teams']:
+                            self.turbo = self.config['fantasy']['drivers_teams'][str(tc['picked_team']['boosted_player_id'])]
+
+                        if str(tc['picked_team']['mega_boosted_player_id']) in self.config['fantasy']['drivers_teams']:
+                            self.mega = self.config['fantasy']['drivers_teams'][str(tc['picked_team']['mega_boosted_player_id'])]
+            else:
+                logging.info(f"[team] HTTP status code - {r.status_code}")
+                self.retry = True
+
+            print(f"{self.name} collected")
+        else:
+            logging.info(f"[user] HTTP status code - {r.status_code}")
+            self.retry = True
+
+
+class EntrantEncoder(json.JSONEncoder):
+    def default(self, entrant):
+        return {
+            "id": entrant.id,
+            "discord_id": entrant.discord_id,
+            "name": entrant.name,
+            "team": entrant.team,
+            "drivers": entrant.drivers,
+            "race_score": entrant.race_score,
+            "score": entrant.score,
+            "turbo": entrant.turbo,
+            "mega": entrant.mega
+        }
+
+
 def format_float(num):
     return format(num, ".15g")
 
@@ -143,89 +232,35 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
         logging.info(f"HTTP status code - {r.status_code}")
         return False
 
+    retry = []
+
     logging.info("Filtering entrants")
     filtered_entrants = [x for x in entrants if str(x['user_id']) not in league['ignore']]
-    for index, entrant in enumerate(filtered_entrants):
-        if str(entrant['user_id']) not in league['players']:
-            entrant['user'] = { "name": f"Unknown ({entrant['team_name']} / {entrant['user_id']})", "id": "" }
-            print(entrant["first_name"], entrant["last_name"])
-        else:
-            entrant['user'] = league['players'][str(entrant['user_id'])]
+    for _, info in enumerate(filtered_entrants):
+        entrant = Entrant(config, league, f1_cookie, headers, info)
 
-        details[entrant['user_id']] = {
-            "team": {},
-            "drivers": {}
-        }
+        # await msg.edit(content=f"Updating: {entrant['user']['name']}")
+        entrant.retrieve_info()
+        if entrant.retry:
+            retry.append(entrant)
 
-        logging.info(f"Getting player info - {entrant['user']['name']}")
-        await msg.edit(content=f"Updating: {entrant['user']['name']} ({index + 1}/{len(filtered_entrants)})")
-        r = requests.get(config['urls']['user_url'].format(entrant['user_id']), headers=headers)
-        if r.status_code in [200, 304]:
-            content = json.loads(r.content.decode('utf-8'))
-            entrant['picks'] = {
-                'drivers': [],
-                'team': None,
-                'race_score': 0
-            }
-            entrant['score'] = content['user']['leaderboard_positions']['slot_1'][league['f1_id']]['score']
+        details[entrant.id] = entrant
 
-            try:
-                logging.info(f"Getting team info")
-                team_id = content["user"]["historical_picked_teams_info"]["slot_1"]["historical_team_info"][-1]["picked_team_id"]
-                tr = requests.get(config['urls']['team_url'].format(team_id), headers=headers)
-                if tr.status_code in [200, 304]:
-                    tc = json.loads(tr.content.decode("utf-8"))
-                    entrant['picks']['race_score'] = tc['picked_team']['score']
-                    for entry in tc['picked_team']['picked_players']:
-                        driver = config['fantasy']['drivers_teams'][str(entry["player"]["id"])]
-                        details[entrant['user_id']]["team"] = {
-                            "name": entry["player"]["display_name"],
-                            "price": entry["player"]["price"],
-                            "picked": entry["player"]["current_price_change_info"]["current_selection_percentage"],
-                            "score": entry["score"],
-                            "turbo": None,
-                            "mega": None,
-                        }
-                        if entry["player"]["position_id"] == 2:
-                            entrant['picks']['team'] = driver
-                        else:
-                            entrant['picks']['drivers'].append(driver)
-
-                    entrant['picks']['turbo'] = config['fantasy']['drivers_teams'][str(
-                        tc['picked_team']['boosted_player_id']
-                    )]
-
-                    if str(tc['picked_team']["mega_boosted_player_id"]) in config['fantasy']['drivers_teams']:
-                        entrant['picks']['mega'] = config['fantasy']['drivers_teams'][str(
-                            tc['picked_team']['mega_boosted_player_id']
-                        )]
-                else:
-                    logging.info(f"HTTP status code - {r.status_code}")
-            except KeyError as err:
-                tb = sys.exc_info()
-                traceback.print_tb(tb[2], limit=1, file=sys.stdout)
-                print(f"User {entrant['user']['name']} does not have historical team picks")
-                if 'slot_1' in content['user']['this_week_player_ids']:
-                    for entry in content['user']['this_week_player_ids']['slot_1']:
-                        if entry <= 10:
-                            entrant['picks']['team'] = config['fantasy']['drivers_teams'][str(entry)]
-                        else:
-                            entrant['picks']['drivers'].append(config['fantasy']['drivers_teams'][str(entry)])
-                else:
-                    print(f"... or current team picks")
-
-            print(f"{entrant['user']['name']} collected")
-        else:
-            logging.info(f"HTTP status code - {r.status_code}")
-
-        # sleep for 5 seconds to try avoid http 429 status codes
+    while len(retry) > 0:
         time.sleep(5)
+        logging.info("Processing retries")
+        for entrant in retry:
+            # await msg.edit(content=f"Updating: {entrant['user']['name']}")
+            entrant.retrieve_info()
+            if not entrant.retry:
+                retry.remove(entrant)
+            details[entrant.id] = entrant
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
 
     with open(f"{league['tag']}-details.json", 'w') as outfile:
-        json.dump(details, outfile, indent=4)
+        json.dump(details, outfile, cls=EntrantEncoder, indent=4)
 
     return True
 
