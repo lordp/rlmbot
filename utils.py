@@ -245,6 +245,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
             retry.append(entrant)
 
         details[entrant.id] = entrant
+        time.sleep(1)
 
     while len(retry) > 0:
         time.sleep(5)
@@ -255,6 +256,7 @@ async def update_fantasy_details(msg, league, config, f1_cookie):
             if not entrant.retry:
                 retry.remove(entrant)
             details[entrant.id] = entrant
+            time.sleep(1)
 
     with open(f"{league['tag']}.json", 'w') as outfile:
         json.dump(filtered_entrants, outfile, indent=4)
