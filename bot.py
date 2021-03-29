@@ -1,9 +1,15 @@
+import discord
 from discord.ext import commands
 from cogs.rlmbot import RLMBot
 from cogs.f1fantasy import F1Fantasy
 
+intents = discord.Intents.default()
+intents.members = True
+
 bot = commands.Bot(
-    command_prefix=commands.when_mentioned_or("+"), description="RLM Bot"
+    command_prefix=commands.when_mentioned_or("+"),
+    description="RLM Bot",
+    intents=intents
 )
 
 @bot.event
