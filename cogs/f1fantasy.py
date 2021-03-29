@@ -248,6 +248,7 @@ class F1Fantasy(commands.Cog):
     @commands.is_owner()
     async def add_player(self, ctx, player, alias, f1_id):
         """Add player info."""
+        msg = "Player not found."
         players = self.config['fantasy'][str(ctx.guild.id)]['players']
         for member in ctx.guild.members:
             if player.lower() in member.name.lower():
