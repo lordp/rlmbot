@@ -233,6 +233,7 @@ class F1Fantasy(commands.Cog):
         await ctx.send(msg)
 
     @fantasy.group(hidden=True)
+    @commands.is_owner()
     async def set(self, ctx, league_id, tag):
         self.config['fantasy'][str(ctx.guild.id)] = {
             "tag": tag,
